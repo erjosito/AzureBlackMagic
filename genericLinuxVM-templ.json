@@ -35,13 +35,6 @@
 			"minLength": 1,
 			"defaultValue": "yes",
 			"metadata":{ "description": "Input yes to configure a custom extension according to the variables section" }
-		},
-		"deployLB": {
-			"type": "string",
-			"allowedValues": [ "yes", "no" ],
-			"minLength": 1,
-			"defaultValue": "yes",
-			"metadata":{ "description": "Input yes to deploy an external load balancer along the VM" }
 		}
     },
     "variables": {
@@ -54,7 +47,8 @@
 		"subnet2Name": "subnet2Name",
 		"subnet2Prefix": "10.254.2.0/24",
 		"diskType": "Standard_LRS",
-		"diskSize": 32,
+		"OsDiskSize": 32,
+		"dataDiskSize": 32,
 		"applicationPort": 80,
 		"applicationName": "Web",
 		"slbName": "[concat(parameters('vmName'),'-slb')]",
@@ -86,13 +80,32 @@
 					"osType": "Linux",
 					"caching": "ReadWrite",
 					"name": "[variables('diskName')]",
-					"diskSizeGb": "[variables('diskSize')]",
+					"diskSizeGb": "[variables('OsDiskSize')]",
 					"createOption": "FromImage",
 					"managedDisk": {
 						"storageAccountType": "[variables('diskType')]"
 					}
 				},
-				"dataDisks": []
+				"dataDisks": [
+					{
+						"diskSizeGB": "[variables('dataDiskSize')]",
+						"lun": 0,
+						"createOption": "attach",
+						"managedDisk": {
+							"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data0'))]"
+						  },
+						"caching": "Readonly"
+					},
+					{
+						"diskSizeGB": "[variables('dataDiskSize')]",
+						"lun": 1,
+						"createOption": "attach",
+						"managedDisk": {
+							"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data1'))]"
+						  },
+						"caching": "Readonly"
+					}
+				]
 			},
 			"centos": {
                     "imageReference": {
@@ -105,14 +118,33 @@
                         "osType": "Linux",
                         "caching": "ReadWrite",
                         "name": "[variables('diskName')]",
-                        "diskSizeGb": "[variables('diskSize')]",
+                        "diskSizeGb": "[variables('OsDiskSize')]",
                         "createOption": "FromImage",
                         "managedDisk": {
                             "storageAccountType": "[variables('diskType')]"
                         }
                     },
-                    "dataDisks": []
-			}
+					"dataDisks": [
+						{
+							"diskSizeGB": "[variables('dataDiskSize')]",
+							"lun": 0,
+							"createOption": "attach",
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data0'))]"
+							  },
+							"caching": "Readonly"
+						},
+						{
+							"diskSizeGB": "[variables('dataDiskSize')]",
+							"lun": 1,
+							"createOption": "attach",
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data1'))]"
+							  },
+							"caching": "Readonly"
+						}
+					]
+				}
 		},
 		"vmStorageProfile": "[variables('vmStorageProfileHash')[parameters('vmType')]]",
 		"vmOsProfile": {
@@ -404,10 +436,6 @@
 		"vmPublicIpAddress": {
 			"type": "string",
 			"value": "[reference(variables('pipName')).ipAddress]"
-		},
-		"slbPublicIpAddress": {
-			"type": "string",
-			"value": "[reference(variables('slbPipName')).ipAddress]"
 		}
 	}
 }
