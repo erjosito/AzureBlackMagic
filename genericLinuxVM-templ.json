@@ -53,7 +53,7 @@
 			"centos": "centosConfig.sh",
 			"ubuntu": "ubuntuConfig.sh"
 		},
-		"customScript": "variables('customScriptHash')[parameters('vmType')]]",
+		"customScript": "[variables('customScriptHash')[parameters('vmType')]]",
         "customScriptUri": "[uri(variables('thisTemplateUri'), variables('customScript'))]",
         "customScriptCmd": "[concat('chmod 666 ', variables('customScript'), ' && /bin/sh ./', variables('customScript'))]",
 		"avSetName": "[concat(parameters('vmName'), '-avSet')]",
