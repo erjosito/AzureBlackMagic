@@ -33,6 +33,7 @@
 			"type": "string",
 			"allowedValues": [ "yes", "no" ],
 			"minLength": 1,
+			"defaultValue": "yes",
 			"metadata":{ "description": "Input yes to configure a custom extension according to the variables section" }
 		}
     },
