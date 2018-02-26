@@ -401,9 +401,13 @@
 			"type": "string",
 			"value": "[variables('customScriptUri')]"
 		},
-		"publicIpAddress": {
+		"vmPublicIpAddress": {
 			"type": "string",
 			"value": "[reference(variables('pipName')).ipAddress]"
+		},
+		"slbPublicIpAddress": {
+			"type": "string",
+			"value": "[reference(variables('slbPipName')).ipAddress]"
 		}
 	}
 }
