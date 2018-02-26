@@ -11,7 +11,7 @@
             "defaultValue": "ubuntu",
             "type": "string",
 			"allowedValues": [ "ubuntu", "centos" ],
-			"metadata": { "description": "Type of VM. At this point only windows, ubuntu and centos supported" }
+			"metadata": { "description": "Type of VM. At this point only ubuntu and centos supported" }
         },
          "vmSize": {
             "defaultValue": "Standard_B1s",
@@ -48,16 +48,13 @@
 		"subnet2Prefix": "10.254.2.0/24",
 		"diskType": "Standard_LRS",
 		"diskSize": 32,
-		"baseRepoURL_old": "https://raw.githubusercontent.com/CSA-OCP-GER/azure-loves-linux/master/",
-		"thisTemplateUrl": "[uri(deployment().properties.templateLink.uri, 'shared-resources.json')]",
-		"thisTemplateUrlSlashIndex": "[lastIndexOf(variables('thisTemplateUrl'), '/')]",
-		"baseRepoURL": "[substring(variables('thisTemplateUrl'), 0, add(variables('thisTemplateUrlSlashIndex'), 1))]",
+		"thisTemplateUri": "[deployment().properties.templateLink.uri]",
 		"customScriptHash": {
 			"centos": "centosConfig.sh",
 			"ubuntu": "ubuntuConfig.sh"
 		},
 		"customScript": "variables('customScriptHash')[parameters('vmType')]]",
-        "customScriptUri": "[concat(variables('baseRepoURL'), variables('customScript'))]",
+        "customScriptUri": "[uri(variables('thisTemplateUri'), variables('customScript'))]",
         "customScriptCmd": "[concat('chmod 666 ', variables('customScript'), ' && /bin/sh ./', variables('customScript'))]",
 		"avSetName": "[concat(parameters('vmName'), '-avSet')]",
         "nicName": "[concat(parameters('vmName'),'-nic')]",
