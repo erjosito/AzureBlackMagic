@@ -266,7 +266,7 @@
 		{
 			"comments": "Create a Linux NSG",
 			"type": "Microsoft.Network/networkSecurityGroups",
-			"name": "[(variables('nsgName')]",
+			"name": "[variables('nsgName')]",
 			"apiVersion": "[variables('networkApiVersion')]",
 			"location": "[resourceGroup().location]",
 			"properties": {
