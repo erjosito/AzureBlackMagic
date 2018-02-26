@@ -90,7 +90,7 @@
 					{
 						"diskSizeGB": "[variables('dataDiskSize')]",
 						"lun": 0,
-						"createOption": "attach",
+						"createOption": "empty",
 						"managedDisk": {
 							"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data0'))]"
 						  },
@@ -99,7 +99,7 @@
 					{
 						"diskSizeGB": "[variables('dataDiskSize')]",
 						"lun": 1,
-						"createOption": "attach",
+						"createOption": "empty",
 						"managedDisk": {
 							"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data1'))]"
 						  },
@@ -128,7 +128,7 @@
 						{
 							"diskSizeGB": "[variables('dataDiskSize')]",
 							"lun": 0,
-							"createOption": "attach",
+							"createOption": "empty",
 							"managedDisk": {
 								"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data0'))]"
 							  },
@@ -137,7 +137,7 @@
 						{
 							"diskSizeGB": "[variables('dataDiskSize')]",
 							"lun": 1,
-							"createOption": "attach",
+							"createOption": "empty",
 							"managedDisk": {
 								"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data1'))]"
 							  },
