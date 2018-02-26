@@ -304,6 +304,10 @@
 		"customScriptUri": {
 			"type": "string",
 			"value": "[variables('customScriptUri')]"
+		},
+		"publicIpAddress": {
+			"type": "string",
+			"value": "[reference(variables('pipName')).ipAddress]"
 		}
 	}
 }
