@@ -51,7 +51,7 @@
 		"baseRepoURL_old": "https://raw.githubusercontent.com/CSA-OCP-GER/azure-loves-linux/master/",
 		"thisTemplateUrl": "[uri(deployment().properties.templateLink.uri, 'shared-resources.json')]",
 		"thisTemplateUrlSlashIndex": "[lastIndexOf(variables('thisTemplateUrl'), '/')]",
-		"baseRepoURL": "[substring(variables('thisTemplateUrl'), 0, add(variables('thisTemplateUrlSlashIndex'), 1)]",
+		"baseRepoURL": "[substring(variables('thisTemplateUrl'), 0, add(variables('thisTemplateUrlSlashIndex'), 1))]",
 		"customScriptHash": {
 			"centos": "centosConfig.sh",
 			"ubuntu": "ubuntuConfig.sh"
