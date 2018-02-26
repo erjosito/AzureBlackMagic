@@ -302,5 +302,11 @@
 			"resources": [],
 			"dependsOn": []
 		}
-    ]
+    ],
+	"outputs": {
+		"customScriptUri": {
+			"type": "string",
+			"value": "[variables('customScriptUri')]"
+		}
+	}
 }
