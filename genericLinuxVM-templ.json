@@ -91,19 +91,19 @@
 						"diskSizeGB": "[variables('dataDiskSize')]",
 						"lun": 0,
 						"createOption": "empty",
+						"caching": "Readonly",
 						"managedDisk": {
-							"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data0'))]"
-						  },
-						"caching": "Readonly"
+							"storageAccountType": "[variables('diskType')]"
+						}
 					},
 					{
 						"diskSizeGB": "[variables('dataDiskSize')]",
 						"lun": 1,
 						"createOption": "empty",
+						"caching": "Readonly",
 						"managedDisk": {
-							"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data1'))]"
-						  },
-						"caching": "Readonly"
+							"storageAccountType": "[variables('diskType')]"
+						}
 					}
 				]
 			},
@@ -129,19 +129,19 @@
 							"diskSizeGB": "[variables('dataDiskSize')]",
 							"lun": 0,
 							"createOption": "empty",
+							"caching": "Readonly",
 							"managedDisk": {
-								"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data0'))]"
-							  },
-							"caching": "Readonly"
+								"storageAccountType": "[variables('diskType')]"
+							}
 						},
 						{
 							"diskSizeGB": "[variables('dataDiskSize')]",
 							"lun": 1,
 							"createOption": "empty",
+							"caching": "Readonly",
 							"managedDisk": {
-								"id": "[resourceId('Microsoft.Compute/disks', concat(parameters('vmName'), '-data1'))]"
-							  },
-							"caching": "Readonly"
+								"storageAccountType": "[variables('diskType')]"
+							}
 						}
 					]
 				}
