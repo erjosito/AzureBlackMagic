@@ -92,6 +92,7 @@
 						"lun": 0,
 						"createOption": "empty",
 						"caching": "Readonly",
+						"name": "[concat(parameters('vmName'), '-datadisk0')]",
 						"managedDisk": {
 							"storageAccountType": "[variables('diskType')]"
 						}
@@ -101,6 +102,7 @@
 						"lun": 1,
 						"createOption": "empty",
 						"caching": "Readonly",
+						"name": "[concat(parameters('vmName'), '-datadisk1')]",
 						"managedDisk": {
 							"storageAccountType": "[variables('diskType')]"
 						}
@@ -130,6 +132,7 @@
 							"lun": 0,
 							"createOption": "empty",
 							"caching": "Readonly",
+							"name": "[concat(parameters('vmName'), '-datadisk0')]",
 							"managedDisk": {
 								"storageAccountType": "[variables('diskType')]"
 							}
@@ -139,6 +142,7 @@
 							"lun": 1,
 							"createOption": "empty",
 							"caching": "Readonly",
+							"name": "[concat(parameters('vmName'), '-datadisk1')]",
 							"managedDisk": {
 								"storageAccountType": "[variables('diskType')]"
 							}
