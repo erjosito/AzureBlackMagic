@@ -14,3 +14,7 @@ sudo wget https://raw.githubusercontent.com/erjosito/AzureBlackMagic/master/styl
 sudo wget https://raw.githubusercontent.com/erjosito/AzureBlackMagic/master/apple-touch-icon.png -P /var/www/html/
 sudo wget https://raw.githubusercontent.com/erjosito/AzureBlackMagic/master/favicon.ico -P /var/www/html/
 
+# Build RAID0 for data disks
+sudo wget https://raw.githubusercontent.com/erjosito/AzureBlackMagic/master/build-raid.sh -P /root/
+sudo chmod 755 /root/build-raid.sh
+sudo /root/build-raid.sh
