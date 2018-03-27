@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Scan for all devices other than sda (OS disk) and sdb (temp disk)
 devices=$(ls -1 /dev/sd* | egrep -v "sd[a|b]")
 numDevices=0
