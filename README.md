@@ -49,7 +49,7 @@ Add a custom script extension to the VM:
 
 ```
 scripturl="https://raw.githubusercontent.com/erjosito/AzureBlackMagic/master/centosConfig.sh"
-scriptcmd="./centosConfig.sh"
+scriptcmd="chmod 666 ./centosConfig.sh && /bin/sh ./centosConfig.sh"
 az vm extension set \
   --resource-group $rg \
   --vm-name $vmname \
