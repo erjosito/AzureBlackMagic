@@ -23,7 +23,7 @@
 		<div class="nav-bar">
 			<div class="container">
 				<ul class="nav">
-					<li><a href="https://github.com/erjosito/IaC-Test">Github repo</a></li>
+					<li><a href="https://github.com/erjosito/AzureBlackMagic">Github repo</a></li>
 				</ul>
 			</div>
 		</div>
