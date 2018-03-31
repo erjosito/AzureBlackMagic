@@ -11,7 +11,7 @@ New-VirtualDisk -FriendlyName $vDiskName `
 $diskNumber = (Get-VirtualDisk -FriendlyName $vDiskName | Get-Disk).Number
 Initialize-Disk -Number $diskNumber
 New-Partition -DiskNumber $diskNumber -UseMaximumSize -AssignDriveLetter
-$driveLetter = (Get-Partition | where {$_.DiskNumber -EQ $diskNumber -and $_.Type -ne 'Reserved'}).DriveLetter
+$driveLetter = (Get-Partition | where {$_.DiskNumber -eq $diskNumber -and $_.Type -ne 'Reserved'}).DriveLetter
 Format-Volume -DriveLetter $driveLetter -FileSystem NTFS -NewFileSystemLabel $vDiskName
 
 # Enable IIS
@@ -31,7 +31,7 @@ $files += 'styles.css'
 $files += 'favicon.ico'
 $baseUrl = 'https://raw.githubusercontent.com/erjosito/AzureBlackMagic/master/'
 $webDir = 'C:\inetpub\wwwroot\'
-for ($i=0; $i -lt $urls.Count; $i++) {
+for ($i=0; $i -lt $files.Count; $i++) {
   $url = $baseUrl + $files[$i]
   $outputFile = $webDir + $files[$i]
   Invoke-WebRequest -Uri $url -OutFile $outputFile
