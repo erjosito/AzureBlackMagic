@@ -24,6 +24,48 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.We
 # Install PHP
 choco install php -y
 
+# Configure IIS to use PHP
+# Find the exec and ini files
+$phpDir = Get-ChildItem C:\Tools -filter "php*" -Directory | % { $_.fullname }
+$php = $phpDir + '\php-cgi.exe'
+$ini = $phpDir + '\php.ini'
+# Adds a FastCGI process pool in IIS
+$configPath = get-webconfiguration 'system.webServer/fastcgi/application' | where-object { $_.fullPath -eq $php }
+if (!$configPath) {
+    add-webconfiguration 'system.webserver/fastcgi' -value @{'fullPath' = $php }
+}
+# Create IIS handler mapping for handling PHP requests
+$handlerName = "PHP"
+$handler = get-webconfiguration 'system.webserver/handlers/add' | where-object { $_.Name -eq $handlerName }
+if (!$handler) {
+    add-webconfiguration 'system.webServer/handlers' -Value @{
+        Name = $handlerName;
+        Path = "*.php";
+        Verb = "*";
+        Modules = "FastCgiModule";
+        scriptProcessor=$php;
+        resourceType='Either' 
+    }
+}
+# Configure the FastCGI Setting
+# Set the max request environment variable for PHP
+$configPath = "system.webServer/fastCgi/application[@fullPath='$php']/environmentVariables/environmentVariable"
+$config = Get-WebConfiguration $configPath
+if (!$config) {
+    $configPath = "system.webServer/fastCgi/application[@fullPath='$php']/environmentVariables"
+    Add-WebConfiguration $configPath -Value @{ 'Name' = 'PHP_FCGI_MAX_REQUESTS'; Value = 10050 }
+}
+# Configure the settings
+# Available settings: 
+#     instanceMaxRequests, monitorChangesTo, stderrMode, signalBeforeTerminateSeconds
+#     activityTimeout, requestTimeout, queueLength, rapidFailsPerMinute, 
+#     flushNamedPipe, protocol   
+$configPath = "system.webServer/fastCgi/application[@fullPath='$php']"
+Set-WebConfigurationProperty $configPath -Name instanceMaxRequests -Value 10000
+Set-WebConfigurationProperty $configPath -Name monitorChangesTo -Value $ini
+# Restart IIS to load new configs.
+invoke-command -scriptblock {iisreset /restart }
+
 # Download web site
 $files = @()
 $files += 'index.php'
