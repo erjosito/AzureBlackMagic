@@ -60,7 +60,7 @@ az vm extension set \
   --settings "{'fileUris': ['$scripturl'],'commandToExecute': '$scriptcmd'}"
 ```
 
-## CLI Cheat Sheet
+## PowerShell Cheat Sheet
 
 Define some variables, including credentials retrieved from a key vault:
 
