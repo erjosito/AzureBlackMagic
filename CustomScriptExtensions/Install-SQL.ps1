@@ -77,8 +77,6 @@ $SQLParams = @"
 /ACTION="Install" /UpdateEnabled="True" /Quiet="True" /IACCEPTSQLSERVERLICENSETERMS="True" /SQMREPORTING="False" /FEATURES=SQLENGINE /INSTALLSHAREDDIR="C:\Program Files\Microsoft SQL Server" /INSTALLSHAREDWOWDIR="C:\Program Files (x86)\Microsoft SQL Server" /INSTANCENAME="MSSQLSERVER" /INSTANCEID="MSSQLSERVER" /INSTANCEDIR="C:\Program Files\Microsoft SQL Server" /AGTSVCACCOUNT="NT AUTHORITY\SYSTEM" /AGTSVCSTARTUPTYPE="Automatic" /SQLSVCACCOUNT="NT AUTHORITY\SYSTEM" /SQLSVCSTARTUPTYPE="Automatic" /BROWSERSVCSTARTUPTYPE="Automatic" /SQLCOLLATION="SQL_Latin1_General_CP1_CI_AS" /SECURITYMODE="SQL" /SAPWD="$SAPassword" {0} /ERRORREPORTING="False" /TCPENABLED="1" /NPENABLED="0" /RSSVCACCOUNT="NT AUTHORITY\SYSTEM"
 "@ -f $(if ($SQLSYSADMINACCOUNT -ne "") {"/SQLSYSADMINACCOUNTS=""$env:USERDOMAIN\$SQLSYSADMINACCOUNT"""} else{""}) 
 
-Write-Output "SQLParams: $SQLParams"
-
 #mount SQL iso as drive
 $mountResult = Mount-DiskImage -ImagePath $SQLPath -StorageType ISO -Access ReadOnly -Verbose -PassThru
 $mountResult | Get-Volume
