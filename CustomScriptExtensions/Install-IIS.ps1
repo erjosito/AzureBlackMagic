@@ -2,17 +2,6 @@
     Install IIS with common features.
 #>
 
-param(
-    [Parameter(Mandatory=$false,Position=1)]
-    [bool] $LogToTempDir
-)
-
-
-if ($LogToTempDir)
-{
-    if (!(Test-Path "c:\temp")) { mkdir c:\temp -force}
-    start-transcript c:\temp\InstallIIS.log
-}
 
 #install IIS features 
 $features = @("Web-Server",
@@ -53,7 +42,6 @@ $features = @("Web-Server",
 "NET-WCF-TCP-PortSharing45")
 Install-WindowsFeature -Name $features -Verbose
 
-if ($LogToTempDir) {stop-transcript}
 
 
 
