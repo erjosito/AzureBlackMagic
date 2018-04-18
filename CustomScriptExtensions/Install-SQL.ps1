@@ -33,7 +33,7 @@ catch
 
 if ($writeLog)
 {
-    start-transcript "$tmpDir\InstallSQL.log"
+    start-transcript "$tmpDir\Install-SQL.log"
 }
 
 

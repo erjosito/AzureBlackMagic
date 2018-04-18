@@ -16,10 +16,29 @@ param(
     [string] $DNSIP,
 
     [Parameter(Mandatory=$False,Position=5)]
-    [string] $ComputerName   
-
+    [string] $ComputerName,
+    
+    [Parameter(Mandatory=$False,Position=6)]
+    [string] $LogToTempDir
 )
 
+#this will be our temp folder logging
+$tmpDir = "c:\temp\" 
+
+try
+{
+    $writeLog = [bool]::Parse($LogToTempDir)
+}
+catch
+{
+    $writeLog=$false
+}
+
+if ($writeLog)
+{
+    if (!(Test-Path $tmpDir)) { mkdir $tmpDir -force}
+    start-transcript "$tmpDir\Join-Domain.log"
+}
 
 #we need to find the AD for Domain join - so lets add the DNS server that knows the domain to join to.
 $InterfaceAlias =  (Get-NetAdapter | Get-NetIPAddress | where Addressfamily -eq "IPv4").InterfaceAlias
@@ -39,4 +58,6 @@ else
     Add-Computer -ComputerName localhost -DomainName $DomainName -Credential $credential #-OUPath "OU=Servers,OU=CloudFabric,DC=buildmycloud,DC=de"
 }
 
-#don't forget to reboot to take effect.
+write-output "don't forget to reboot."
+
+if ($writeLog) {stop-transcript}

@@ -1,47 +1,38 @@
-﻿<# 
-    Install IIS with common features.
-#>
+﻿param(
+    [Parameter(Mandatory=$True,Position=1)]
+    [string] $DomainName,
 
+    [Parameter(Mandatory=$True,Position=2)]
+    [string] $Password,
 
-#install IIS features 
-$features = @("Web-Server",
-"Web-WebServer",
-"Web-Common-Http",
-"Web-Default-Doc",
-"Web-Dir-Browsing",
-"Web-Http-Errors",
-"Web-Static-Content",
-"Web-Http-Redirect",
-"Web-Health",
-"Web-Http-Logging",
-"Web-Custom-Logging",
-"Web-Log-Libraries",
-"Web-Request-Monitor",
-"Web-Http-Tracing",
-"Web-Performance",
-"Web-Stat-Compression",
-"Web-Dyn-Compression",
-"Web-Security",
-"Web-Filtering",
-"Web-Basic-Auth",
-"Web-IP-Security",
-"Web-Url-Auth",
-"Web-Windows-Auth",
-"Web-App-Dev",
-"Web-Net-Ext45",
-"Web-Asp-Net45",
-"Web-ISAPI-Ext",
-"Web-ISAPI-Filter",
-"Web-Mgmt-Tools",
-"Web-Mgmt-Console",
-"Web-Scripting-Tools",
-"NET-Framework-45-Features",
-"NET-Framework-45-Core",
-"NET-Framework-45-ASPNET",
-"NET-WCF-Services45",
-"NET-WCF-TCP-PortSharing45")
-Install-WindowsFeature -Name $features -Verbose
+    [Parameter(Mandatory=$False,Position=6)]
+    [string] $LogToTempDir
+)
 
+#this will be our temp folder logging
+$tmpDir = "c:\temp\" 
 
+try
+{
+    $writeLog = [bool]::Parse($LogToTempDir)
+}
+catch
+{
+    $writeLog=$false
+}
 
+if ($writeLog)
+{
+    if (!(Test-Path $tmpDir)) { mkdir $tmpDir -force}
+    start-transcript "$tmpDir\Install-IIS.log"
+}
 
+#To install AD we need PS support for AD first
+Install-WindowsFeature AD-Domain-Services -IncludeAllSubFeature -IncludeManagementTools
+Import-Module ActiveDirectory
+
+#Do Domain install
+$SecurePassword = ConvertTo-SecureString "$Password" -AsPlainText -Force
+Install-ADDSForest -DomainName "$DomainName" -ForestMode Default -DomainMode Default -InstallDns:$true -SafeModeAdministratorPassword $SecurePassword -CreateDnsDelegation:$false -NoRebootOnCompletion:$true -Force:$true
+
+if ($writeLog) {stop-transcript}
