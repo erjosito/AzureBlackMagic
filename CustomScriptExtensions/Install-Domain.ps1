@@ -5,7 +5,7 @@
     [Parameter(Mandatory=$True,Position=2)]
     [string] $Password,
 
-    [Parameter(Mandatory=$False,Position=6)]
+    [Parameter(Mandatory=$False,Position=3)]
     [string] $LogToTempDir
 )
 
