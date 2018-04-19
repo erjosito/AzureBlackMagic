@@ -5,15 +5,26 @@
     [Parameter(Mandatory=$True,Position=2)]
     [string] $Password,
 
-    [Parameter(Mandatory=$false,Position=3)]
-    [bool] $LogToTempDir
-
+    [Parameter(Mandatory=$False,Position=3)]
+    [string] $LogToTempDir
 )
 
-if ($LogToTempDir)
+#this will be our temp folder logging
+$tmpDir = "c:\temp\" 
+
+try
 {
-    if (!(Test-Path "c:\temp")) { mkdir c:\temp -force}
-    start-transcript c:\temp\InstallDomain.log
+    $writeLog = [bool]::Parse($LogToTempDir)
+}
+catch
+{
+    $writeLog=$false
+}
+
+if ($writeLog)
+{
+    if (!(Test-Path $tmpDir)) { mkdir $tmpDir -force}
+    start-transcript "$tmpDir\Install-Domain.log"
 }
 
 #To install AD we need PS support for AD first
@@ -24,4 +35,4 @@ Import-Module ActiveDirectory
 $SecurePassword = ConvertTo-SecureString "$Password" -AsPlainText -Force
 Install-ADDSForest -DomainName "$DomainName" -ForestMode Default -DomainMode Default -InstallDns:$true -SafeModeAdministratorPassword $SecurePassword -CreateDnsDelegation:$false -NoRebootOnCompletion:$true -Force:$true
 
-if ($LogToTempDir) {stop-transcript}
+if ($writeLog) {stop-transcript}
