@@ -1,11 +1,5 @@
 ﻿param(
-    [Parameter(Mandatory=$True,Position=1)]
-    [string] $DomainName,
-
-    [Parameter(Mandatory=$True,Position=2)]
-    [string] $Password,
-
-    [Parameter(Mandatory=$False,Position=6)]
+    [Parameter(Mandatory=$False,Position=1)]
     [string] $LogToTempDir
 )
 
