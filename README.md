@@ -4,7 +4,12 @@ This repo has mulitple examples about how to automatically deploy Windows and Li
 
 The first category of examples show how to deploy single VMs over ARM templates, Azure CLI, Powershell and Terraform. These examples are easily extensible to build single-Tier, multi-VM deployments, or even multi-tier/VM deployments, since the concepts are identical.
 
-Note that in most of the cases no passwords are hard-coded, but they are read out of an Azure Key Vault.
+Note that in most of the cases the following guidelines are followed:
+
+* No passwords are hard-coded, but they are read out of an Azure Key Vault
+* VMs are configured in an Availability Set, so that they can be associated to a LB at a later stage
+* Multiple Data Disks are created, to accomodate with flexible I/O requirements
+
 
 ## ARM Template for Ubuntu/Centos VM
 
