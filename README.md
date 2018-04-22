@@ -4,6 +4,8 @@ This repo has mulitple examples about how to automatically deploy Windows and Li
 
 The first category of examples show how to deploy single VMs over ARM templates, Azure CLI, Powershell and Terraform. These examples are easily extensible to build single-Tier, multi-VM deployments, or even multi-tier/VM deployments, since the concepts are identical.
 
+Note that in most of the cases no passwords are hard-coded, but they are read out of an Azure Key Vault.
+
 ## ARM Template for Ubuntu/Centos VM
 
 This template deploys a Centos or Ubuntu VM (configured via ARM template parameters) in an availability set with a load balancer in front, and over a Custom Script Extension the following actions are executed:
@@ -157,7 +159,7 @@ set-azurermvmcustomscriptextension -resourcegroupname $resGrp `
 
 ## Terraform
 
-In order to deploy the terraform configuration, you need to download this file to a system with Terraform installed. The recommendation is using Azure Cloud Shell, since Terraform is already pre-installed and you do not need to modify the configuration files with your Azure credentials:
+In order to deploy the terraform configuration, you need to download [this file](https://github.com/erjosito/AzureBlackMagic/blob/master/terraform/linuxvm/linuxvm.tf) to a system with Terraform installed. The recommendation is using Azure Cloud Shell, since Terraform is already pre-installed and you do not need to modify the configuration files with your Azure credentials:
 
 ```
 mdkir terraformtest
@@ -168,6 +170,7 @@ terraform plan
 terraform apply
 ```
 
+
 # Multi-Tier Deployments
 
 The scripts in the [Custom Script Extensions folder](https://github.com/erjosito/AzureBlackMagic/tree/master/CustomScriptExtensions) show some deployment examples for typical components of a multi-tier application, including:
@@ -176,9 +179,11 @@ The scripts in the [Custom Script Extensions folder](https://github.com/erjosito
 * IIS role activation
 * SQL Server on IaaS VM installation (see the next section for Azure SQL DB)
 
+
 # PaaS: Azure SQL DB
 
 [This powershell script](https://github.com/erjosito/AzureBlackMagic/blob/master/azureSQLdb.ps1) shows different commands that can be used to perform the following actions:
 
 * Create a new Azure SQL Database (including the Azure SQL Server instance) in Azure
 * Import an existing bacpac file into the SQL database, including a scale-up before the import operation and a scale-down afterwards
+* Delete the Azure SQL DB Database
