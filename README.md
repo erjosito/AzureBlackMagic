@@ -1,8 +1,19 @@
-# Azure Black Magic Training
+# Single-VM Deployments
 
-## ARM Templates Cheat Sheet
+This repo has mulitple examples about how to automatically deploy Windows and Linux VMs following different frameworks. The goal is showing working examples for each of those, so that they can be used as basis to build your own solution.
 
-Create a resource group:
+The first category of examples show how to deploy single VMs over ARM templates, Azure CLI, Powershell and Terraform. These examples are easily extensible to build single-Tier, multi-VM deployments, or even multi-tier/VM deployments, since the concepts are identical.
+
+## ARM Template for Ubuntu/Centos VM
+
+This template deploys a Centos or Ubuntu VM (configured via ARM template parameters) in an availability set with a load balancer in front, and over a Custom Script Extension the following actions are executed:
+
+* All data disks are grouped into a RAID0 and mounted
+* Changes are reboot-persistent
+* httpd and php are installed
+* A web page is downloaded
+
+Before deploying the template you need to create a resource group:
 
 ```
 rg="myapp"
@@ -19,9 +30,16 @@ password=$(az keyvault secret show --vault-name myAzureKeyvault -n mySecretName 
 az group deployment create -g $rg -n myDeployment --template-uri $url --parameters "{'adminUsername': {'value': '$username'}, 'adminPassword': {'value': '$password'}}"
 ```
 
-## CLI Cheat Sheet
+## Azure CLI for Centos VM
 
-Create a resource group:
+These commands deploy a Centos VM in an availability set, and over a Custom Script Extension the following actions are executed:
+
+* All data disks are grouped into a RAID0 and mounted
+* Changes are reboot-persistent
+* httpd and php are installed
+* A web page is downloaded
+
+As usual, the first step is to create a resource group:
 
 ```
 rg="myapp2"
@@ -60,9 +78,18 @@ az vm extension set \
   --settings "{'fileUris': ['$scripturl'],'commandToExecute': '$scriptcmd'}"
 ```
 
-## PowerShell Cheat Sheet
+## PowerShell for Windows VM
 
-Define some variables, including credentials retrieved from a key vault:
+These commands deploy a Windows VM in an availability set, and over a Custom Script Extension the following actions are executed:
+
+* All data disks are joined into a virtual disk, partitioned and mounted to a drive
+* IIS role is activated
+* Chocolatey is installed
+* PHP is installed over Chocolatey
+* IIS is configured to use PHP
+* A web page is downloaded
+
+The first step is to define some variables, including credentials retrieved from a key vault:
 
 ```
 $resGrp = 'mytestw2016'
@@ -127,3 +154,31 @@ set-azurermvmcustomscriptextension -resourcegroupname $resGrp `
                                    -Run $script `
                                    -Name DemoScriptExtension
 ```
+
+## Terraform
+
+In order to deploy the terraform configuration, you need to download this file to a system with Terraform installed. The recommendation is using Azure Cloud Shell, since Terraform is already pre-installed and you do not need to modify the configuration files with your Azure credentials:
+
+```
+mdkir terraformtest
+cd terraformtest
+wget https://raw.githubusercontent.com/erjosito/AzureBlackMagic/master/terraform/linuxvm/linuxvm.tf
+terraform init
+terraform plan
+terraform apply
+```
+
+# Multi-Tier Deployments
+
+The scripts in the [Custom Script Extensions folder](https://github.com/erjosito/AzureBlackMagic/tree/master/CustomScriptExtensions) show some deployment examples for typical components of a multi-tier application, including:
+
+* Domain Controller (including join scripts for the members)
+* IIS role activation
+* SQL Server on IaaS VM installation (see the next section for Azure SQL DB)
+
+# PaaS: Azure SQL DB
+
+[This powershell script](https://github.com/erjosito/AzureBlackMagic/blob/master/azureSQLdb.ps1) shows different commands that can be used to perform the following actions:
+
+* Create a new Azure SQL Database (including the Azure SQL Server instance) in Azure
+* Import an existing bacpac file into the SQL database, including a scale-up before the import operation and a scale-down afterwards
