@@ -19,14 +19,14 @@ see e.g. https://docs.microsoft.com/en-us/azure/architecture/reference-architect
     $StorageAccountName = "BMDemosa" 
     $StorageAccountType = "Standard_LRS" 
     $LocalAdminUsername = "bfrank" 
-    $LocalAdminPassword = "LetMeInNow1!" 
+    $LocalAdminPassword = "*********" 
     $Location = "NorthEurope"
     $LBDomainNameLabel = "bfrankwebapp"
     $OSDiskCaching = "ReadOnly"
     $backendNIC1IP = "10.0.0.6"
     $backendNIC2IP = "10.0.0.7"
     $ADNICIP = "10.0.100.4"
-    $DomainName = "Buildmycloud.local"
+    $DomainName = "xyz0815.local"
 #endregion 
 
 #Login to Azure Subscription
