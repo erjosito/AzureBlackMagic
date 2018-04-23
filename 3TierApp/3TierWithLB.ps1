@@ -19,14 +19,14 @@ see e.g. https://docs.microsoft.com/en-us/azure/architecture/reference-architect
     $StorageAccountName = "BMDemosa" 
     $StorageAccountType = "Standard_LRS" 
     $LocalAdminUsername = "adminUser" 
-    $LocalAdminPassword = "*******" 
+    $LocalAdminPassword = "LetMeInNow1!" 
     $Location = "NorthEurope"
     $LBDomainNameLabel = "bfrankwebapp"
     $OSDiskCaching = "ReadOnly"
     $backendNIC1IP = "10.0.0.6"
     $backendNIC2IP = "10.0.0.7"
     $ADNICIP = "10.0.100.4"
-    $DomainName = "xyz0815.local"
+    $DomainName = "test.local"
 #endregion 
 
 #Login to Azure Subscription
@@ -48,7 +48,7 @@ New-AzureRmResourceGroup -Name $TopLevelRG -Location $Location
     }
 
     #VNet
-    $VNet = New-AzureRmVirtualNetwork -Name $($ConfigPrefix+"VNET") -AddressPrefix $VNETAddressPrefix -Subnet $subnets -ResourceGroupName $TopLevelRG -Location $Location -DnsServer $ADNICIP
+    $VNet = New-AzureRmVirtualNetwork -Name $($ConfigPrefix+"VNET") -AddressPrefix $VNETAddressPrefix -Subnet $subnets -ResourceGroupName $TopLevelRG -Location $Location 
 
 #endregion        
 
@@ -534,6 +534,14 @@ for ($i = 0; $i -lt $TierPrefix.Count; $i++)
 
         #restart DC after DC Promo
         Get-AzureRmVM -Name $VMName -ResourceGroupName $RGName | Restart-AzureRmVM 
+
+        #Now lets change the DNS Server -> remove Azure DNS / add DC as DNS server on VNET
+        $VNET =  Get-AzureRmVirtualNetwork -Name $($ConfigPrefix+"VNET") -ResourceGroupName $TopLevelRG
+        $VNET.AddressSpace
+        $DnsServers = @($ADNICIP)
+        $object = new-object -type PSObject -Property @{"DnsServers" = $DnsServers}
+        $VNET.DhcpOptions = $object
+        $VNET|Set-AzureRmVirtualNetwork
 
         #check: domain controller up and running?
         sleep -Seconds 50

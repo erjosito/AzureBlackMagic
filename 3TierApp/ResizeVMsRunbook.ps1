@@ -13,6 +13,8 @@ param(
     [STRING]$RGName
 )
 
+$RGName = "BlackMagic"
+
 function GetSmallerVmSize ($AzureVMSizes, $oldSize)
 {
     #less memory and less cores available?
@@ -64,6 +66,7 @@ catch {
     }
 } 
 Write-Output $account
+
 
 #Get all VMs in RG - and create as is hashtable
 $VMs = Get-AzureRmVM -ResourceGroupName $RGName
