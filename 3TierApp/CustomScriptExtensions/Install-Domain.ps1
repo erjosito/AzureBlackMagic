@@ -74,4 +74,9 @@ switch ($DataDisk0 -ne $null)
     }
 }
 
+
+#add some DNS forwarders to our DNS server to enable external name resolution
+Add-DnsServerForwarder -IPAddress 8.8.8.8
+Add-DnsServerForwarder -IPAddress 208.67.222.222
+
 if ($writeLog) {stop-transcript}
