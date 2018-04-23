@@ -551,7 +551,7 @@ for ($i = 0; $i -lt $TierPrefix.Count; $i++)
         $RGName = $TierPrefix[$i]+"RG"
         $myURL = "https://raw.githubusercontent.com/bernhardfrank/AzureBlackMagic/master/3TierApp/CustomScriptExtensions/Join-Domain.ps1"
         $VMName = "$($TierPrefix[$i])VM"
-        Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RGName -VMName $VMName -Location $Location -FileUri $myURL -Run "$(Split-Path -Leaf -Path $myURL)" -Name DemoScriptExtension -Argument "$DomainName $LocalAdminUsername $LocalAdminPassword true"
+        Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RGName -VMName $VMName -Location $Location -FileUri $myURL -Run "$(Split-Path -Leaf -Path $myURL)" -Name DemoScriptExtension -Argument "$DomainName $LocalAdminUsername $LocalAdminPassword"
 
         #restart VM after Domain Join
         Get-AzureRmVM -Name $VMName -ResourceGroupName $RGName | Restart-AzureRmVM 
