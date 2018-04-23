@@ -520,7 +520,7 @@ for ($i = 0; $i -lt $TierPrefix.Count; $i++)
         $i = 0    #this is the web tier.
         $RGName = $TierPrefix[$i]+"RG"
         $VMName = "$($TierPrefix[$i])VM1"
-        $myURL = "https://raw.githubusercontent.com/bernhardfrank/AzureBlackMagic/master/CustomScriptExtensions/Install-IIS.ps1"
+        $myURL = "https://raw.githubusercontent.com/bernhardfrank/AzureBlackMagic/master/3TierApp/CustomScriptExtensions/Install-IIS.ps1"
         Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RGName -VMName $VMName -Location $Location -FileUri $myURL -Run "$(Split-Path -Leaf -Path $myURL)" -Name DemoScriptExtension -Argument "true"
 
         $VMName = "$($TierPrefix[$i])VM2"
@@ -529,7 +529,7 @@ for ($i = 0; $i -lt $TierPrefix.Count; $i++)
         $i = 3 # DC Tier
         $RGName = $TierPrefix[$i]+"RG"
         $VMName = "$($TierPrefix[$i])VM"
-        $myURL = "https://raw.githubusercontent.com/bernhardfrank/AzureBlackMagic/master/CustomScriptExtensions/Install-Domain.ps1"
+        $myURL = "https://raw.githubusercontent.com/bernhardfrank/AzureBlackMagic/master/3TierApp/CustomScriptExtensions/Install-Domain.ps1"
         Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RGName -VMName $VMName -Location $Location -FileUri $myURL -Run "$(Split-Path -Leaf -Path $myURL)" -Name DemoScriptExtension -Argument "$DomainName $LocalAdminPassword true"
 
         #restart DC after DC Promo
@@ -541,7 +541,7 @@ for ($i = 0; $i -lt $TierPrefix.Count; $i++)
         #do the domain join of the Backend servers
         $i = 2    #this is the web tier.
         $RGName = $TierPrefix[$i]+"RG"
-        $myURL = "https://raw.githubusercontent.com/bernhardfrank/AzureBlackMagic/master/CustomScriptExtensions/Join-Domain.ps1"
+        $myURL = "https://raw.githubusercontent.com/bernhardfrank/AzureBlackMagic/master/3TierApp/CustomScriptExtensions/Join-Domain.ps1"
         $VMName = "$($TierPrefix[$i])VM"
         Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RGName -VMName $VMName -Location $Location -FileUri $myURL -Run "$(Split-Path -Leaf -Path $myURL)" -Name DemoScriptExtension -Argument "$DomainName $LocalAdminUsername $LocalAdminPassword true"
 
