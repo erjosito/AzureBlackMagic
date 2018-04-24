@@ -1,17 +1,24 @@
-﻿<# 
-    Install IIS with common features.
-#>
-
-param(
-    [Parameter(Mandatory=$false,Position=1)]
-    [bool] $LogToTempDir
+﻿param(
+    [Parameter(Mandatory=$False,Position=1)]
+    [string] $LogToTempDir
 )
 
+#this will be our temp folder logging
+$tmpDir = "c:\temp\" 
 
-if ($LogToTempDir)
+try
 {
-    if (!(Test-Path "c:\temp")) { mkdir c:\temp -force}
-    start-transcript c:\temp\InstallIIS.log
+    $writeLog = [bool]::Parse($LogToTempDir)
+}
+catch
+{
+    $writeLog=$false
+}
+
+if ($writeLog)
+{
+    if (!(Test-Path $tmpDir)) { mkdir $tmpDir -force}
+    start-transcript "$tmpDir\Install-IIS.log"
 }
 
 #install IIS features 
@@ -53,7 +60,4 @@ $features = @("Web-Server",
 "NET-WCF-TCP-PortSharing45")
 Install-WindowsFeature -Name $features -Verbose
 
-if ($LogToTempDir) {stop-transcript}
-
-
-
+if ($writeLog) {stop-transcript}

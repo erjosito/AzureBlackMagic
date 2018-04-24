@@ -10,10 +10,10 @@ param(
     [string] $SQLSYSADMINACCOUNT,
     
     [Parameter(Mandatory=$False,Position=3)]
-    [bool] $InstallSQLServerManagementStudio,
+    [string] $InstallSQLServerManagementStudio = "true",
 
     [Parameter(Mandatory=$False,Position=4)]
-    [bool] $LogToTempDir
+    [string] $LogToTempDir
 )
 
 #this will be our temp folder - need it for sql download / logging
@@ -22,9 +22,18 @@ $tmpDir = "c:\temp\"
 #create folder if it doesn't exist
 if (!(Test-Path $tmpDir)) { mkdir $tmpDir -force}
 
-if ($LogToTempDir)
+try
 {
-    start-transcript "$tmpDir\InstallSQL.log"
+    $writeLog = [bool]::Parse($LogToTempDir)
+}
+catch
+{
+    $writeLog=$false
+}
+
+if ($writeLog)
+{
+    start-transcript "$tmpDir\Install-SQL.log"
 }
 
 
@@ -65,8 +74,8 @@ $downloadSSMS = "http://download.microsoft.com/download/E/D/3/ED3B06EC-E4B5-40B3
 
 #build parameterbased sql installation string
 $SQLParams = @"
-/ACTION="Install" /UpdateEnabled="True" /Quiet="True" /IACCEPTSQLSERVERLICENSETERMS="True" /SQMREPORTING="False" /FEATURES=SQL /INSTALLSHAREDDIR="C:\Program Files\Microsoft SQL Server" /INSTALLSHAREDWOWDIR="C:\Program Files (x86)\Microsoft SQL Server" /INSTANCENAME="MSSQLSERVER" /INSTANCEID="MSSQLSERVER" /INSTANCEDIR="C:\Program Files\Microsoft SQL Server" /AGTSVCACCOUNT="NT AUTHORITY\SYSTEM" /AGTSVCSTARTUPTYPE="Automatic" /SQLSVCACCOUNT="NT AUTHORITY\SYSTEM" /SQLSVCSTARTUPTYPE="Automatic" /BROWSERSVCSTARTUPTYPE="Automatic" /SQLCOLLATION="SQL_Latin1_General_CP1_CI_AS" /SECURITYMODE="SQL" /SAPWD="$SAPassword" {0} /ERRORREPORTING="False" /TCPENABLED="1" /NPENABLED="0" /RSSVCACCOUNT="NT AUTHORITY\SYSTEM"
-"@ -f $(if ($SQLSYSADMINACCOUNT -ne "") {"/SQLSYSADMINACCOUNTS=""$SQLSYSADMINACCOUNT"""} else{""}) 
+/ACTION="Install" /UpdateEnabled="True" /Quiet="True" /IACCEPTSQLSERVERLICENSETERMS="True" /SQMREPORTING="False" /FEATURES=SQLENGINE /INSTALLSHAREDDIR="C:\Program Files\Microsoft SQL Server" /INSTALLSHAREDWOWDIR="C:\Program Files (x86)\Microsoft SQL Server" /INSTANCENAME="MSSQLSERVER" /INSTANCEID="MSSQLSERVER" /INSTANCEDIR="C:\Program Files\Microsoft SQL Server" /AGTSVCACCOUNT="NT AUTHORITY\SYSTEM" /AGTSVCSTARTUPTYPE="Automatic" /SQLSVCACCOUNT="NT AUTHORITY\SYSTEM" /SQLSVCSTARTUPTYPE="Automatic" /BROWSERSVCSTARTUPTYPE="Automatic" /SQLCOLLATION="SQL_Latin1_General_CP1_CI_AS" /SECURITYMODE="SQL" /SAPWD="$SAPassword" {0} /ERRORREPORTING="False" /TCPENABLED="1" /NPENABLED="0" /RSSVCACCOUNT="NT AUTHORITY\SYSTEM"
+"@ -f $(if ($SQLSYSADMINACCOUNT -ne "") {"/SQLSYSADMINACCOUNTS=""$env:USERDOMAIN\$SQLSYSADMINACCOUNT"""} else{""}) 
 
 #mount SQL iso as drive
 $mountResult = Mount-DiskImage -ImagePath $SQLPath -StorageType ISO -Access ReadOnly -Verbose -PassThru
@@ -85,7 +94,15 @@ Dismount-DiskImage -ImagePath $SQLPath
 #endregion
 
 #region install SQL Server Management Studio
-if ($InstallSQLServerManagementStudio)
+try
+{
+    $installSSMS = [bool]::Parse($InstallSQLServerManagementStudio)
+}
+catch
+{
+    $installSSMS=$false
+}
+if ($installSSMS)
 {
     #has SQL Server MGMT Studio already downloaded?
     do
@@ -101,4 +118,4 @@ if ($InstallSQLServerManagementStudio)
 }
 #endregion
 
-if ($LogToTempDir) {stop-transcript}
+if ($writeLog) {stop-transcript}
