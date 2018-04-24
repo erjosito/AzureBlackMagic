@@ -12,25 +12,38 @@ param(
     [Parameter(Mandatory=$True,Position=3)]
     [string] $Password,
 
-    [Parameter(Mandatory=$True,Position=4)]
-    [string] $DNSIP,
-
-    [Parameter(Mandatory=$False,Position=5)]
+    [Parameter(Mandatory=$False,Position=4)]
     [string] $ComputerName,
     
-    [Parameter(Mandatory=$False,Position=6)]
-    [bool] $LogToTempDir
+    [Parameter(Mandatory=$False,Position=5)]
+    [string] $LogToTempDir
 )
 
-if ($LogToTempDir)
+#this will be our temp folder logging
+$tmpDir = "c:\temp\" 
+
+try
 {
-    if (!(Test-Path "c:\temp")) { mkdir c:\temp -force}
-    start-transcript c:\temp\JoinDomain.log
+    $writeLog = [bool]::Parse($LogToTempDir)
+}
+catch
+{
+    $writeLog=$false
+}
+
+if ($writeLog)
+{
+    if (!(Test-Path $tmpDir)) { mkdir $tmpDir -force}
+    start-transcript "$tmpDir\Join-Domain.log"
 }
 
 #we need to find the AD for Domain join - so lets add the DNS server that knows the domain to join to.
-$InterfaceAlias =  (Get-NetAdapter | Get-NetIPAddress | where Addressfamily -eq "IPv4").InterfaceAlias
-Set-DnsClientServerAddress -InterfaceAlias "$InterfaceAlias" -ServerAddresses $DNSIP
+#on prem you would do this 
+#$InterfaceAlias =  (Get-NetAdapter | Get-NetIPAddress | where Addressfamily -eq "IPv4").InterfaceAlias
+#Set-DnsClientServerAddress -InterfaceAlias "$InterfaceAlias" -ServerAddresses $DNSIP
+
+#For AD in Azure VMs you would set the DNS Server on the VNET 
+#New-AzureRmVirtualNetwork -Name ... -DnsServer $ADNICIP
 
 $pwd = ConvertTo-SecureString $Password -AsPlainText -Force
 $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "$DomainName\$UserName", $pwd
@@ -46,7 +59,6 @@ else
     Add-Computer -ComputerName localhost -DomainName $DomainName -Credential $credential #-OUPath "OU=Servers,OU=CloudFabric,DC=buildmycloud,DC=de"
 }
 
-#restart in 10sec
-shutdown /r /t 10
+write-output "don't forget to reboot."
 
-if ($LogToTempDir) {stop-transcript}
+if ($writeLog) {stop-transcript}
