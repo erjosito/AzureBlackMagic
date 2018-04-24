@@ -543,14 +543,15 @@ for ($i = 0; $i -lt $TierPrefix.Count; $i++)
         $VNET.DhcpOptions = $object
         $VNET|Set-AzureRmVirtualNetwork
 
-        #check: domain controller up and running?
+        #check: wait for DNS server -VNET settings to propagate to VMs..... might take longer (reboot of DB server might be faster)
         sleep -Seconds 50
         
         #do the domain join of the Backend servers
-        $i = 2    #this is the web tier.
+        $i = 2    #this is the data tier.
         $RGName = $TierPrefix[$i]+"RG"
         $myURL = "https://raw.githubusercontent.com/bernhardfrank/AzureBlackMagic/master/3TierApp/CustomScriptExtensions/Join-Domain.ps1"
         $VMName = "$($TierPrefix[$i])VM"
+        Get-AzureRmVM -Name $VMName -ResourceGroupName $RGName | Restart-AzureRmVM 
         Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RGName -VMName $VMName -Location $Location -FileUri $myURL -Run "$(Split-Path -Leaf -Path $myURL)" -Name DemoScriptExtension -Argument "$DomainName $LocalAdminUsername $LocalAdminPassword"
 
         #restart VM after Domain Join
