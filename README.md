@@ -178,7 +178,7 @@ terraform apply
 
 # Multi-Tier Deployments
 
-The scripts in the [Custom Script Extensions folder](https://github.com/erjosito/AzureBlackMagic/tree/master/CustomScriptExtensions) show some deployment examples for typical components of a multi-tier application, including:
+The scripts in the [Custom Script Extensions folder](https://github.com/erjosito/AzureBlackMagic/tree/master/3TierApp) show some deployment examples for typical components of a multi-tier application, including:
 
 * Domain Controller (including join scripts for the members)
 * IIS role activation
