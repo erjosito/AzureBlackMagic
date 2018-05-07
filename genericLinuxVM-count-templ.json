@@ -222,7 +222,7 @@
 			"location": "[resourceGroup().location]",
 			"properties": {
 				"availabilitySet": {
-					"id": "[resourceId('Microsoft.Compute/availabilitySets', variables('avSetName'))]"
+					"id": "[resourceId('Microsoft.Compute/availabilitySets', concat(variables('avSetName'), '-', padleft(copyIndex(1), 2, '0')))]"
 				},
 				"hardwareProfile": {
 					"vmSize": "[parameters('vmSize')]"
