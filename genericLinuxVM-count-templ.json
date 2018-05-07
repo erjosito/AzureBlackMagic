@@ -73,89 +73,21 @@
         "nsgName": "[concat(parameters('vmName'),'-nsg')]",
 		"pipName": "[concat(parameters('vmName'), '-pip')]",
 		"diskName": "[concat(parameters('vmName'),'-osDisk')]",
-		"vmStorageProfileHash": {
+		"vmImageReferenceHash": {
 			"ubuntu": {
-				"imageReference": {
-					"publisher": "Canonical",
-					"offer": "UbuntuServer",
-					"sku": "16.04.0-LTS",
-					"version": "latest"
-				},
-				"osDisk": {
-					"osType": "Linux",
-					"caching": "ReadWrite",
-					"name": "[variables('diskName')]",
-					"diskSizeGb": "[variables('OsDiskSize')]",
-					"createOption": "FromImage",
-					"managedDisk": {
-						"storageAccountType": "[variables('diskType')]"
-					}
-				},
-				"dataDisks": [
-					{
-						"diskSizeGB": "[variables('dataDiskSize')]",
-						"lun": 0,
-						"createOption": "empty",
-						"caching": "Readonly",
-						"name": "[concat(parameters('vmName'), '-datadisk0')]",
-						"managedDisk": {
-							"storageAccountType": "[variables('diskType')]"
-						}
-					},
-					{
-						"diskSizeGB": "[variables('dataDiskSize')]",
-						"lun": 1,
-						"createOption": "empty",
-						"caching": "Readonly",
-						"name": "[concat(parameters('vmName'), '-datadisk1')]",
-						"managedDisk": {
-							"storageAccountType": "[variables('diskType')]"
-						}
-					}
-				]
+				"publisher": "Canonical",
+				"offer": "UbuntuServer",
+				"sku": "16.04.0-LTS",
+				"version": "latest"
 			},
 			"centos": {
-                    "imageReference": {
-                        "publisher": "OpenLogic",
-                        "offer": "CentOS",
-                        "sku": "7.3",
-                        "version": "latest"
-                    },
-                    "osDisk": {
-                        "osType": "Linux",
-                        "caching": "ReadWrite",
-                        "name": "[variables('diskName')]",
-                        "diskSizeGb": "[variables('OsDiskSize')]",
-                        "createOption": "FromImage",
-                        "managedDisk": {
-                            "storageAccountType": "[variables('diskType')]"
-                        }
-                    },
-					"dataDisks": [
-						{
-							"diskSizeGB": "[variables('dataDiskSize')]",
-							"lun": 0,
-							"createOption": "empty",
-							"caching": "Readonly",
-							"name": "[concat(parameters('vmName'), '-datadisk0')]",
-							"managedDisk": {
-								"storageAccountType": "[variables('diskType')]"
-							}
-						},
-						{
-							"diskSizeGB": "[variables('dataDiskSize')]",
-							"lun": 1,
-							"createOption": "empty",
-							"caching": "Readonly",
-							"name": "[concat(parameters('vmName'), '-datadisk1')]",
-							"managedDisk": {
-								"storageAccountType": "[variables('diskType')]"
-							}
-						}
-					]
-				}
+				"publisher": "OpenLogic",
+				"offer": "CentOS",
+				"sku": "7.3",
+				"version": "latest"
+			}
 		},
-		"vmStorageProfile": "[variables('vmStorageProfileHash')[parameters('vmType')]]",
+		"vmImageReference": "[variables('vmImageReferenceHash')[parameters('vmType')]]",
 		"vmOsProfile": {
 			"computerName": "[parameters('vmName')]",
 			"adminUsername": "[parameters('adminUsername')]",
@@ -227,7 +159,41 @@
 				"hardwareProfile": {
 					"vmSize": "[parameters('vmSize')]"
 				},
-				"storageProfile": "[variables('vmStorageProfile')]",
+				"storageProfile": {
+					"imageReference": "[variables('vmImageReference')]",
+					"osDisk": {
+						"osType": "Linux",
+						"caching": "ReadWrite",
+						"name": "[concat(variables('diskName'), '-', padleft(copyIndex(1), 2, '0'))]",
+						"diskSizeGb": "[variables('OsDiskSize')]",
+						"createOption": "FromImage",
+						"managedDisk": {
+							"storageAccountType": "[variables('diskType')]"
+						}
+					},
+					"dataDisks": [
+						{
+							"diskSizeGB": "[variables('dataDiskSize')]",
+							"lun": 0,
+							"createOption": "Empty",
+							"caching": "ReadOnly",
+							"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'),'-datadisk0')]",
+							"managedDisk": {
+								"storageAccountType": "[variables('diskType')]"
+							}
+						},
+						{
+							"diskSizeGB": "[variables('dataDiskSize')]",
+							"lun": 1,
+							"createOption": "Empty",
+							"caching": "ReadOnly",
+							"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'),'-datadisk1')]",
+							"managedDisk": {
+								"storageAccountType": "[variables('diskType')]"
+							}
+						}
+					],
+				},
 				"osProfile": "[variables('vmOsProfile')]",
 				"networkProfile": {
 					"networkInterfaces": [
