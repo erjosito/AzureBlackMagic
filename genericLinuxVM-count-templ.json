@@ -232,7 +232,7 @@
 				"networkProfile": {
 					"networkInterfaces": [
 						{
-							"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicName'), '-', padleft(copyIndex(1), 2, '0')))]",
 							"properties": {
 								"primary": true
 							}
