@@ -222,7 +222,7 @@
 			"location": "[resourceGroup().location]",
 			"properties": {
 				"availabilitySet": {
-					"id": "[resourceId('Microsoft.Compute/availabilitySets', concat(variables('avSetName'), '-', padleft(copyIndex(1), 2, '0')))]"
+					"id": "[resourceId('Microsoft.Compute/availabilitySets', variables('avSetName'))]"
 				},
 				"hardwareProfile": {
 					"vmSize": "[parameters('vmSize')]"
@@ -243,7 +243,7 @@
 			"resources": [],
 			"dependsOn": [
 				"nicCount",
-				"avSetCount"
+				"[variables('avSetName')]"
 			],
             "copy": {
                 "name": "vmCount",
@@ -279,7 +279,7 @@
 		},
 		{
 			"type": "Microsoft.Compute/availabilitySets",
-			"name": "[concat(variables('avSetName'), '-', padleft(copyIndex(1), 2, '0'))]",
+			"name": "[variables('avSetName')]",
 			"apiVersion": "[variables('computeApiVersion')]",
 			"location": "[resourceGroup().location]",
 			"properties": {
@@ -288,11 +288,7 @@
 			},
 			"sku": {
 				"name": "Aligned"
-			},
-            "copy": {
-                "name": "avSetCount",
-                "count": "[parameters('vmCount')]"
-            }
+			}
 		},
 		{
 			"comments": "Create Network Interface Card, associated to the NSG and to the LB backend pool",

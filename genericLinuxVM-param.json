@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
             "vmType": { "value": "centos"},
-            "vmSize": { "value": "Standard_A0"},
+            "vmSize": { "value": "Standard_B1s"},
             "vmName": { "value": "myCentosVm"},
             "installExtension": { "value": "yes"},
             "adminUsername": { "value": "jose"},
