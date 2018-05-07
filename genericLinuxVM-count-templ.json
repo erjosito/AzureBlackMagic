@@ -1,0 +1,466 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vmCount": {
+            "defaultValue": 2,
+            "type": "int",
+			"metadata": { "description": "Number of VMs to create" }
+        },
+        "vmName": {
+            "defaultValue": "myVm",
+            "type": "string",
+			"metadata": { "description": "Name to be assigned to the new VM" }
+        },
+         "vmType": {
+            "defaultValue": "ubuntu",
+            "type": "string",
+			"allowedValues": [ "ubuntu", "centos" ],
+			"metadata": { "description": "Type of VM. At this point only ubuntu and centos supported" }
+        },
+         "vmSize": {
+            "defaultValue": "Standard_B1s",
+            "type": "string",
+			"allowedValues": [ "Standard_A0", "Standard_A1_v2", "Standard_D2_v3", "Standard_D2s_v3", "Standard_D1_v2", "Standard_DS1_v2", "Standard_B1s", "Standard_B2s" ],
+			"metadata": { "description": "Size of the new VM. Only a limited subset of sizes are supported" }
+        },
+		"adminUsername": {
+            "type": "string",
+			"minLength": 1,
+			"metadata": { "description": "Username to login to the VM, either over SSH for Linux VMs, or over RDP for Windows VMs" }
+        },
+		"adminPassword": {
+            "type": "securestring",
+			"minLength": 1,
+			"metadata": { "description": "Password to login to the VM." }
+        },
+		"installExtension": {
+			"type": "string",
+			"allowedValues": [ "yes", "no" ],
+			"minLength": 1,
+			"defaultValue": "yes",
+			"metadata":{ "description": "Input yes to configure a custom extension according to the variables section" }
+		}
+    },
+    "variables": {
+		"computeApiVersion": "2017-03-30",
+        "networkApiVersion": "2017-06-01",
+		"vnetName": "myVnet",
+		"vnetPrefix": "10.254.0.0/16",
+		"subnet1Name": "subnet1Name",
+		"subnet1Prefix": "10.254.1.0/24",
+		"subnet2Name": "subnet2Name",
+		"subnet2Prefix": "10.254.2.0/24",
+		"diskType": "Standard_LRS",
+		"OsDiskSize": 32,
+		"dataDiskSize": 32,
+		"applicationPort": 80,
+		"applicationName": "Web",
+		"slbName": "[concat(parameters('vmName'),'-slb')]",
+		"slbPipName": "[concat(parameters('vmName'),'-slb-pip')]",
+		"slbFrontendName": "[concat(parameters('vmName'),'-slb-frontend')]",
+		"slbBackendName": "[concat(parameters('vmName'),'-slb-backend')]",
+		"thisTemplateUri": "[deployment().properties.templateLink.uri]",
+		"customScriptHash": {
+			"centos": "centosConfig.sh",
+			"ubuntu": "ubuntuConfig.sh"
+		},
+		"customScript": "[variables('customScriptHash')[parameters('vmType')]]",
+        "customScriptUri": "[uri(variables('thisTemplateUri'), variables('customScript'))]",
+        "customScriptCmd": "[concat('chmod 666 ', variables('customScript'), ' && /bin/sh ./', variables('customScript'))]",
+		"avSetName": "[concat(parameters('vmName'), '-avSet')]",
+        "nicName": "[concat(parameters('vmName'),'-nic')]",
+        "nsgName": "[concat(parameters('vmName'),'-nsg')]",
+		"pipName": "[concat(parameters('vmName'), '-pip')]",
+		"diskName": "[concat(parameters('vmName'),'-osDisk')]",
+		"vmStorageProfileHash": {
+			"ubuntu": {
+				"imageReference": {
+					"publisher": "Canonical",
+					"offer": "UbuntuServer",
+					"sku": "16.04.0-LTS",
+					"version": "latest"
+				},
+				"osDisk": {
+					"osType": "Linux",
+					"caching": "ReadWrite",
+					"name": "[variables('diskName')]",
+					"diskSizeGb": "[variables('OsDiskSize')]",
+					"createOption": "FromImage",
+					"managedDisk": {
+						"storageAccountType": "[variables('diskType')]"
+					}
+				},
+				"dataDisks": [
+					{
+						"diskSizeGB": "[variables('dataDiskSize')]",
+						"lun": 0,
+						"createOption": "empty",
+						"caching": "Readonly",
+						"name": "[concat(parameters('vmName'), '-datadisk0')]",
+						"managedDisk": {
+							"storageAccountType": "[variables('diskType')]"
+						}
+					},
+					{
+						"diskSizeGB": "[variables('dataDiskSize')]",
+						"lun": 1,
+						"createOption": "empty",
+						"caching": "Readonly",
+						"name": "[concat(parameters('vmName'), '-datadisk1')]",
+						"managedDisk": {
+							"storageAccountType": "[variables('diskType')]"
+						}
+					}
+				]
+			},
+			"centos": {
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS",
+                        "sku": "7.3",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "caching": "ReadWrite",
+                        "name": "[variables('diskName')]",
+                        "diskSizeGb": "[variables('OsDiskSize')]",
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[variables('diskType')]"
+                        }
+                    },
+					"dataDisks": [
+						{
+							"diskSizeGB": "[variables('dataDiskSize')]",
+							"lun": 0,
+							"createOption": "empty",
+							"caching": "Readonly",
+							"name": "[concat(parameters('vmName'), '-datadisk0')]",
+							"managedDisk": {
+								"storageAccountType": "[variables('diskType')]"
+							}
+						},
+						{
+							"diskSizeGB": "[variables('dataDiskSize')]",
+							"lun": 1,
+							"createOption": "empty",
+							"caching": "Readonly",
+							"name": "[concat(parameters('vmName'), '-datadisk1')]",
+							"managedDisk": {
+								"storageAccountType": "[variables('diskType')]"
+							}
+						}
+					]
+				}
+		},
+		"vmStorageProfile": "[variables('vmStorageProfileHash')[parameters('vmType')]]",
+		"vmOsProfile": {
+			"computerName": "[parameters('vmName')]",
+			"adminUsername": "[parameters('adminUsername')]",
+			"linuxConfiguration": {
+				"disablePasswordAuthentication": false
+			},
+			"secrets": [],
+			"adminPassword": "[parameters('adminPassword')]"				
+		}
+	},
+    "resources": [
+		{
+			"comments": "Create vnet with 2 subnets",
+			"type": "Microsoft.Network/virtualNetworks",
+			"name": "[variables('vnetName')]",
+			"apiVersion": "[variables('networkApiVersion')]",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"addressSpace": {
+					"addressPrefixes": [
+						"[variables('vnetPrefix')]"
+					]
+				},
+				"subnets": [
+					{
+						"name": "[variables('subnet1Name')]",
+						"properties": {
+							"addressPrefix": "[variables('subnet1Prefix')]"
+						}
+					},
+					{
+						"name": "[variables('subnet2Name')]",
+						"properties": {
+							"addressPrefix": "[variables('subnet2Prefix')]"
+						}
+					}
+				]
+			},
+			"resources": [],
+			"dependsOn": []
+		},
+        {
+            "comments": "Public IP address",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[concat(variables('pipName'), '-', padleft(copyIndex(1), 2, '0'))]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4
+            },
+            "copy": {
+                "name": "pipCount",
+                "count": "[parameters('vmCount')]"
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+		{
+			"comments": "Deploy Virtual Machine",
+			"type": "Microsoft.Compute/virtualMachines",
+			"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'))]",
+			"apiVersion": "[variables('computeApiVersion')]",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"availabilitySet": {
+					"id": "[resourceId('Microsoft.Compute/availabilitySets', variables('avSetName'))]"
+				},
+				"hardwareProfile": {
+					"vmSize": "[parameters('vmSize')]"
+				},
+				"storageProfile": "[variables('vmStorageProfile')]",
+				"osProfile": "[variables('vmOsProfile')]",
+				"networkProfile": {
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+							"properties": {
+								"primary": true
+							}
+						}
+					]
+				}
+			},
+			"resources": [],
+			"dependsOn": [
+				"nicCount",
+				"avSetCount"
+			],
+            "copy": {
+                "name": "vmCount",
+                "count": "[parameters('vmCount')]"
+            }
+		},
+		{
+			"comments": "Create Linux custom extension, if the parameter installExtension is yes",
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'), '/installcustomscript')]",
+			"condition": "[equals(parameters('installExtension'), 'yes')]",
+			"apiVersion": "[variables('computeApiVersion')]",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"publisher": "Microsoft.Azure.Extensions",
+				"type": "CustomScript",
+				"typeHandlerVersion": "2.0",
+				"autoUpgradeMinorVersion": true,
+				"settings": {
+					"fileUris": [
+						"[variables('customScriptUri')]"
+					],
+					"commandToExecute": "[variables('customScriptCmd')]"
+				}
+			},
+			"dependsOn": [
+				"vmCount"
+			],
+            "copy": {
+                "name": "sceCount",
+                "count": "[parameters('vmCount')]"
+            }
+		},
+		{
+			"type": "Microsoft.Compute/availabilitySets",
+			"name": "[concat(variables('avSetName'), '-', padleft(copyIndex(1), 2, '0'))]",
+			"apiVersion": "[variables('computeApiVersion')]",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"platformUpdateDomainCount": 2,
+				"platformFaultDomainCount": 2
+			},
+			"sku": {
+				"name": "Aligned"
+			},
+            "copy": {
+                "name": "avSetCount",
+                "count": "[parameters('vmCount')]"
+            }
+		},
+		{
+			"comments": "Create Network Interface Card, associated to the NSG and to the LB backend pool",
+			"type": "Microsoft.Network/networkInterfaces",
+			"name": "[concat(variables('nicName'), '-', padleft(copyIndex(1), 2, '0'))]",
+			"apiVersion": "[variables('networkApiVersion')]",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"ipConfigurations": [
+					{
+						"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'), '-ipconfig1')]",
+						"properties": {
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('pipName'), '-', padleft(copyIndex(1), 2, '0')))]"
+                            },
+							"privateIPAllocationMethod": "Dynamic",
+							"subnet": {
+								"id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '/subnets/', variables('subnet1Name'))]"
+							},
+							"loadBalancerBackendAddressPools": [
+								{
+									"id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('slbName')), '/backendAddressPools/', variables('slbBackendName'))]"
+								}
+							]
+                    	}
+					}
+				],
+				"dnsSettings": {
+					"dnsServers": []
+				},
+				"enableIPForwarding": false,
+				"networkSecurityGroup": {
+					"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+				}
+			},
+			"resources": [],
+			"dependsOn": [
+				"[variables('nsgName')]",
+				"[variables('vnetName')]",
+				"pipCount"
+			],
+            "copy": {
+                "name": "nicCount",
+                "count": "[parameters('vmCount')]"
+            }
+		},
+		{
+			"comments": "Create a Linux NSG",
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"name": "[variables('nsgName')]",
+			"apiVersion": "[variables('networkApiVersion')]",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "SSH",
+						"properties": {
+							"protocol": "Tcp",
+							"sourcePortRange": "*",
+							"destinationPortRange": "22",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 100,
+							"direction": "Inbound"
+						}
+					},
+					{
+						"name": "[variables('applicationName')]",
+						"properties": {
+							"protocol": "Tcp",
+							"sourcePortRange": "*",
+							"destinationPortRange": "[variables('applicationPort')]",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 110,
+							"direction": "Inbound"
+						}
+					}
+				]
+			},
+			"resources": [],
+			"dependsOn": []
+		},
+        {
+			"comments": "External Load Balancer",
+            "type": "Microsoft.Network/loadBalancers",
+            "name": "[variables('slbName')]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "[variables('slbFrontendName')]",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('slbPipName'))]"
+                            }
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[variables('slbBackendName')]"
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "[variables('applicationName')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat( resourceId('Microsoft.Network/loadBalancers', variables('slbName')), '/frontendIPConfigurations/', variables('slbFrontendName'))]"
+                            },
+                            "frontendPort": "[variables('applicationPort')]",
+                            "backendPort": "[variables('applicationPort')]",
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "Tcp",
+                            "loadDistribution": "Default",
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('slbName')), '/backendAddressPools/', variables('slbBackendName'))]"
+                            },
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('slbName')), '/probes/', variables('applicationName'))]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "[variables('applicationName')]",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": "[variables('applicationPort')]",
+                            "intervalInSeconds": 15,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ],
+                "inboundNatRules": [],
+                "outboundNatRules": [],
+                "inboundNatPools": []
+            },
+            "resources": [],
+            "dependsOn": [
+                "[variables('slbPipName')]"
+            ]
+        },
+        {
+            "comments": "Public IP address for the load balancer",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('slbPipName')]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4
+            },
+            "resources": [],
+            "dependsOn": []
+        }
+    ],
+	"outputs": {
+		"customScriptUri": {
+			"type": "string",
+			"value": "[variables('customScriptUri')]"
+		}
+	}
+}
