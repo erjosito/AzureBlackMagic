@@ -1,0 +1,34 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vnetName": {
+            "defaultValue": "myVnet",
+            "type": "string"
+        },
+        "vnetPrefix": {
+            "defaultValue": "10.0.0.0/16",
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Easy template that can be used as an ARM hello world example",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('vnetName')]",
+            "apiVersion": "2016-03-30",
+            "location": "westeurope",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetPrefix')]"
+                    ]
+                },
+                "subnets": []
+            },
+            "resources": [],
+            "dependsOn": []
+        }
+    ]
+}
