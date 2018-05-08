@@ -60,7 +60,7 @@
 		"slbPipName": "[concat(parameters('vmName'),'-slb-pip')]",
 		"slbFrontendName": "[concat(parameters('vmName'),'-slb-frontend')]",
 		"slbBackendName": "[concat(parameters('vmName'),'-slb-backend')]",
-		"thisTemplateUri": "[deployment().properties.templateLink.uri]",
+		"thisTemplateUri": "https://raw.githubusercontent.com/erjosito/AzureBlackMagic/master/genericLinuxVM-count-templ.json",
 		"customScriptHash": {
 			"centos": "centosConfig.sh",
 			"ubuntu": "ubuntuConfig.sh"
@@ -177,7 +177,7 @@
 							"lun": 0,
 							"createOption": "Empty",
 							"caching": "ReadOnly",
-							"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'),'-datadisk0')]",
+							"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'), '-datadisk0')]",
 							"managedDisk": {
 								"storageAccountType": "[variables('diskType')]"
 							}
@@ -187,7 +187,7 @@
 							"lun": 1,
 							"createOption": "Empty",
 							"caching": "ReadOnly",
-							"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'),'-datadisk1')]",
+							"name": "[concat(parameters('vmName'), '-', padleft(copyIndex(1), 2, '0'), '-datadisk1')]",
 							"managedDisk": {
 								"storageAccountType": "[variables('diskType')]"
 							}
