@@ -1,0 +1,22 @@
+- name: CREATE VNET PLAYBOOK
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    resgrp: 'ansibletest'
+  tasks:
+  - name: Create resource group
+    azure_rm_resourcegroup:
+      name: '{{resgrp}}'
+      location: 'westeurope'
+  - name: Create virtual network
+    azure_rm_virtualnetwork:
+      resource_group: '{{resgrp}}'
+      name: testvn001
+      address_prefixes: "10.10.0.0/16"
+  - name: Add subnet
+    azure_rm_subnet:
+      resource_group: '{{resgrp}}'
+      name: subnet001
+      address_prefix: "10.10.0.0/24"
+      virtual_network: testvn001

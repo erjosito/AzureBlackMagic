@@ -1,0 +1,13 @@
+- name: DELETE RESOURCE GROUP PLAYBOOK
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    resgrp: 'ansibletest'
+  tasks:
+  - name: Delete resource group
+    azure_rm_resourcegroup:
+      name: '{{resgrp}}'
+      location: 'westeurope'
+      state: absent
+      force: yes

@@ -1,0 +1,74 @@
+- name: CREATE VM PLAYBOOK
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    # Variables 'ssh_key', need to be provided at command line with arg --extra-vars
+    # For example: ansible-playbook ./new_vm.yml --extra-vars "ssh_key=$(cat ~/.ssh/id_rsa.pub)"
+    resgrp: 'ansibletest'
+    vnet: 'myvnet'
+    subnet: 'mysubnet'
+    vmname: 'myvm'
+  tasks:
+  - name: Create resource group
+    azure_rm_resourcegroup:
+      name: '{{resgrp}}'
+      location: 'westeurope'
+  - name: Create virtual network
+    azure_rm_virtualnetwork:
+      resource_group: '{{resgrp}}'
+      name: '{{vnet}}'
+      address_prefixes: "10.10.0.0/16"
+  - name: Add subnet
+    azure_rm_subnet:
+      resource_group: '{{resgrp}}'
+      name: '{{subnet}}'
+      address_prefix: "10.10.0.0/24"
+      virtual_network: '{{vnet}}'
+  - name: Create Network Security Group that allows SSH and HTTP
+    azure_rm_securitygroup: 
+      resource_group: '{{ resgrp }}'
+      name: '{{ vmname }}'
+      rules: 
+        - name: Allow_SSH 
+          protocol: Tcp 
+          destination_port_range: 22  
+          access: Allow  
+          priority: 101 
+          direction: Inbound
+        - name: Allow_WEB
+          protocol: Tcp 
+          destination_port_range: 80  
+          access: Allow  
+          priority: 102 
+          direction: Inbound
+  - name: Create public IP address
+    azure_rm_publicipaddress: 
+      resource_group: '{{ resgrp }}'
+      allocation_method: Static 
+      name: '{{ vmname }}'
+  - name: Create NIC
+    azure_rm_networkinterface:
+      resource_group: '{{ resgrp }}'
+      name: '{{ vmname }}'
+      virtual_network: '{{ vnet }}'
+      subnet: '{{ subnet }}'
+      public_ip_name: '{{ vmname }}'
+      security_group: '{{ vmname }}'
+  - name: Create VM
+    azure_rm_virtualmachine:
+      resource_group: '{{ resgrp }}'
+      name: '{{ vmname }}'
+      os_disk_size: 32
+      os_type: linux
+      vm_size: Standard_A0
+      admin_username: lab-user
+      ssh_password_enabled: False
+      ssh_public_keys: 
+        - path: /home/lab-user/.ssh/authorized_keys
+          key_data: '{{ ssh_key }}'
+      image:
+        offer: CentOS
+        publisher: OpenLogic
+        sku: '7.5'
+        version: latest
